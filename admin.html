@@ -268,7 +268,7 @@
 
 <script>
 /* ─── config (index.html-იდან გაზიარებული API_BASE) ─── */
-const API_BASE = "" || (localStorage.getItem('bebo_api_base') || "");
+const API_BASE = "https://bebos-receptebi-production.up.railway.app" || (localStorage.getItem('bebo_api_base') || "");
 const USE_CLOUD = !!API_BASE;
 const K_TOKEN="bebo_token", K_USER="bebo_user_v1";
 const K_ACCTS="bebo_accounts_v1", K_RECIPES="bebo_recipes_v1", K_COOKS="bebo_cooks_v1";
