@@ -13,7 +13,22 @@ const { Pool } = pg;
 const PORT = process.env.PORT || 3000;
 
 // CORS — თუ გინდა შეზღუდო, ჩაწერე Vercel დომენი CORS_ORIGIN ცვლადში
-const ORIGIN = process.env.CORS_ORIGIN || "*";
+// მრავალი დომენი მძიმით გამოყავი. სქემა (https://) სავალდებულო არაა — ავტომატურად ემატება.
+const RAW_ORIGIN = process.env.CORS_ORIGIN || "*";
+const normOrigin = (o) => {
+  const v = String(o).trim().replace(/\/+$/, "");
+  if (!v || v === "*") return v;
+  return (/^https?:\/\//i.test(v) ? v : "https://" + v).toLowerCase();
+};
+const ALLOW = RAW_ORIGIN.split(",").map(normOrigin).filter(Boolean);
+const corsOrigin =
+  ALLOW.includes("*") || !ALLOW.length
+    ? "*"
+    : (origin, cb) => {
+        // origin არ არსებობს server-to-server/curl-ისთვის — დაუშვი
+        if (!origin) return cb(null, true);
+        cb(null, ALLOW.includes(normOrigin(origin)));
+      };
 
 // JWT — production-ზე აუცილებლად დააყენე ძლიერი JWT_SECRET env ცვლადი
 const JWT_SECRET = process.env.JWT_SECRET || "bebo-secret-change-me";
@@ -34,7 +49,7 @@ const pool = new Pool({
 });
 
 const app = express();
-app.use(cors({ origin: ORIGIN }));
+app.use(cors({ origin: corsOrigin }));
 app.use(express.json({ limit: "4mb" })); // კერძის/ავატარის ფოტოები data URL-ად
 
 // ─── row <-> app mapping (desc/time რეზერვირებულია → description/time_text) ───
