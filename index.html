@@ -113,7 +113,7 @@
     padding:18px 14px;text-align:center;cursor:pointer;transition:.2s cubic-bezier(.16,1,.3,1)}
   .cook:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:var(--accent-2)}
   .cook.active{border-color:var(--accent);background:linear-gradient(160deg,#fff8ea,#f8ead0);box-shadow:var(--shadow)}
-  .cook .av{width:62px;height:62px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:32px;
+  .cook .av{width:62px;height:62px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:32px;overflow:hidden;
     background:var(--cc,linear-gradient(150deg,#f3e3c8,#e8cfa6))}
   .cook b{font-family:var(--serif);font-size:16.5px;display:block;line-height:1.2}
   .cook small{display:block;font-size:12px;color:var(--ink-soft);margin-top:4px}
@@ -136,7 +136,7 @@
   .card h3{font-family:var(--serif);font-size:21px;margin:0;line-height:1.2}
   .card p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.55;flex:1}
   .card .by{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-soft);margin-top:2px}
-  .card .by .dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:var(--cc,#e8cfa6)}
+  .card .by .dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;overflow:hidden;background:var(--cc,#e8cfa6)}
   .card .foot{display:flex;gap:14px;font-size:13px;color:var(--ink-soft);margin-top:2px}
   .empty{grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--ink-soft);font-size:17px;line-height:1.6}
   .skel{grid-column:1/-1;text-align:center;padding:50px;color:var(--ink-soft);font-size:16px}
@@ -153,7 +153,7 @@
   .author{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);
     border-radius:40px;padding:7px 16px 7px 7px;margin-bottom:18px;cursor:pointer;transition:.18s}
   .author:hover{border-color:var(--accent-2)}
-  .author .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:var(--cc,#e8cfa6)}
+  .author .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;overflow:hidden;background:var(--cc,#e8cfa6)}
   .author b{font-family:var(--serif);font-size:15px}
   .author small{color:var(--ink-soft);font-size:12.5px}
   .d-desc{font-size:17px;color:var(--ink-soft);line-height:1.7;margin:0 0 22px;max-width:640px}
@@ -183,7 +183,7 @@
   .cook-hero{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:24px;
     padding:30px 28px;display:flex;align-items:center;gap:24px;box-shadow:var(--shadow);margin-bottom:22px}
   .cook-hero::before{content:"";position:absolute;top:0;left:0;right:0;height:8px;background:var(--cc,var(--accent))}
-  .cook-hero .big{width:92px;height:92px;border-radius:50%;background:var(--cc,#e8cfa6);display:grid;place-items:center;font-size:46px;flex:none;box-shadow:0 10px 26px -12px rgba(70,45,20,.6)}
+  .cook-hero .big{width:92px;height:92px;border-radius:50%;background:var(--cc,#e8cfa6);display:grid;place-items:center;font-size:46px;flex:none;overflow:hidden;box-shadow:0 10px 26px -12px rgba(70,45,20,.6)}
   .cook-hero .info h2{margin:0;font-family:var(--serif);font-size:clamp(26px,5vw,40px);line-height:1.05}
   .cook-hero .info .sub{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
   .cook-hero .info .sub span{font-size:13px;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);border-radius:30px;padding:5px 13px}
@@ -222,6 +222,10 @@
   .emoji-pick{display:flex;gap:8px;flex-wrap:wrap}
   .emoji-pick button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--paper);font-size:22px}
   .emoji-pick button.sel{border-color:var(--accent);background:#f8ead0;transform:scale(1.05)}
+  .emoji-pick button.up{font-size:19px;color:var(--accent);border-style:dashed;border-color:var(--accent-2)}
+  .emoji-pick button.up.sel{border-style:solid;padding:0;overflow:hidden}
+  .emoji-pick button.up.sel img{width:100%;height:100%;object-fit:cover;display:block}
+  .ava-img{width:100%;height:100%;object-fit:cover;display:block}
   .save{margin-top:4px}
   .err{color:#b3261e;font-size:13px;display:none}
   .err.show{display:block}
@@ -339,7 +343,7 @@
           <div class="field"><label>ბებიის სახელი <span class="req">*</span></label><input id="nc_name" placeholder="მაგ. ბებია მარო" /></div>
           <div class="field"><label>კუთხე / ქალაქი</label><input id="nc_city" placeholder="მაგ. კახეთი" /></div>
         </div>
-        <div class="field"><label>ავატარი</label><div class="emoji-pick" id="emojiPick"></div></div>
+        <div class="field"><label>ავატარი</label><div class="emoji-pick" id="emojiPick"></div><input type="file" id="nc_photo" accept="image/*" hidden onchange="onPhotoPick(this)" /></div>
       </div>
       <div class="field"><label>კერძის სახელი <span class="req">*</span></label><input id="f_name" placeholder="მაგ. ბებიას ხაჭაპური" /></div>
       <div class="two">
@@ -468,9 +472,14 @@ function loadLocal(){
 function saveLocal(){ try{ localStorage.setItem(K_COOKS,JSON.stringify(COOKS)); localStorage.setItem(K_RECIPES,JSON.stringify(RECIPES)); }catch(e){} }
 
 async function dataAddCook(cook){
-  COOKS.push(cook);
-  if(USE_CLOUD) await api('/api/cooks',{method:'POST',body:JSON.stringify(cook)});
-  else saveLocal();
+  if(USE_CLOUD){
+    const res=await api('/api/cooks',{method:'POST',body:JSON.stringify(cook)});
+    const id=(res&&res.id)||cook.id;
+    // სერვერმა შესაძლოა დააბრუნოს არსებული ბებიის id (დუბლიკატის თავიდან ასაცილებლად)
+    if(!COOKS.some(c=>c.id===id)) COOKS.push({...cook,id});
+    return id;
+  }
+  COOKS.push(cook); saveLocal(); return cook.id;
 }
 async function dataAddRecipe(rec){
   // ლოკალურ რეჟიმში დავიმახსოვროთ ვინ ატვირთა (ადმინის პანელისთვის)
@@ -510,7 +519,7 @@ function renderCooks(){
       <div class="av">🍲</div><b>ყველა ბებია</b><small>ყველა კუთხე</small><span class="n">${RECIPES.length} რეცეპტი</span></div>`;
   cooksEl.innerHTML=all+COOKS.map(c=>`
     <div class="cook ${activeCook===c.id?'active':''}" onclick="openCook('${c.id}')">
-      <div class="av" style="--cc:${c.cc}">${esc(c.av)}</div>
+      <div class="av" style="--cc:${c.cc}">${avatarInner(c)}</div>
       <b>${esc(c.name)}</b><small>${esc(c.city||'')}</small>
       <span class="n">${recipesOf(c.id).length} რეცეპტი</span></div>`).join('');
 }
@@ -522,7 +531,7 @@ function cardHTML(r,showBy){
   return `<article class="card" onclick="openDetail('${r.id}')">
       <div class="thumb" style="--tb:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}"><span class="cat">${esc(r.cat)}</span>${esc(r.emoji||'🍽️')}</div>
       <div class="body"><h3>${esc(r.name)}</h3><p>${esc(r.desc)}</p>
-        ${showBy?`<div class="by"><span class="dot" style="--cc:${c.cc}">${esc(c.av)}</span>${esc(c.name)}</div>`:''}
+        ${showBy?`<div class="by"><span class="dot" style="--cc:${c.cc}">${avatarInner(c)}</span>${esc(c.name)}</div>`:''}
         <div class="foot"><span>⏱ ${esc(r.time||'—')}</span><span>👥 ${esc(r.serves||'—')}</span><span>📊 ${esc(r.level||'—')}</span></div>
       </div></article>`;
 }
@@ -592,7 +601,7 @@ function renderRecipe(r){
     <div class="d-hero" style="background:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}">${esc(r.emoji||'🍽️')}</div>
     <div class="d-cat">${esc(r.cat)}</div><h2>${esc(r.name)}</h2>
     <div class="author" onclick="openCook('${r.cook}')">
-      <span class="av" style="--cc:${c.cc}">${esc(c.av)}</span>
+      <span class="av" style="--cc:${c.cc}">${avatarInner(c)}</span>
       <span><b>${esc(c.name)}</b>${c.city?`<br><small>${esc(c.city)}</small>`:''}</span></div>
     <p class="d-desc">${esc(r.desc)}</p>
     <div class="d-stats">
@@ -616,7 +625,7 @@ function renderCookPage(){
   cookInner.innerHTML=`
     <button class="back" onclick="goHome()">← ყველა ბებიასთან დაბრუნება</button>
     <div class="cook-hero" style="--cc:${c.cc}">
-      <div class="big">${esc(c.av)}</div>
+      <div class="big">${avatarInner(c)}</div>
       <div class="info"><h2>${esc(c.name)}</h2>
         <div class="sub">${c.city?`<span>📍 ${esc(c.city)}</span>`:''}<span><b>${all.length}</b> რეცეპტი</span></div></div>
     </div>
@@ -639,17 +648,44 @@ async function deleteRecipe(id){
 /* ═══════════ UPLOAD ═══════════ */
 const modal=document.getElementById('modal');
 let pickedEmoji=EMOJIS[0];
+let pickedAvatarImg=null;
+const isImg=v=>typeof v==='string'&&v.slice(0,5)==='data:';
+const isMineCook=c=>!!(currentUser&&c&&c.owner_email&&c.owner_email.toLowerCase()===(currentUser.email||'').toLowerCase());
+const avatarInner=c=>isImg(c.av)?`<img class="ava-img" src="${c.av}" alt="${esc(c.name||'')}" />`:esc(c.av);
+const avatarText=c=>isImg(c.av)?'👵':esc(c.av);
 function renderCookSelect(){
   const sel=document.getElementById('f_cook');
-  sel.innerHTML=COOKS.map(c=>`<option value="${c.id}">${esc(c.av)} ${esc(c.name)}${c.city?' · '+esc(c.city):''}</option>`).join('')+`<option value="__new">➕ ახალი ბებია დავამატო…</option>`;
+  // მხოლოდ მომხმარებლის საკუთარი ბებიები ჩანს არჩევანში
+  let list=COOKS.filter(isMineCook);
+  if(uploadPreCook){ const pc=COOKS.find(c=>c.id===uploadPreCook); if(pc&&!list.some(c=>c.id===pc.id)) list=[pc,...list]; }
+  sel.innerHTML=list.map(c=>`<option value="${c.id}">${avatarText(c)} ${esc(c.name)}${c.city?' · '+esc(c.city):''}</option>`).join('')+`<option value="__new">➕ ახალი ბებია დავამატო…</option>`;
   sel.onchange=()=>document.getElementById('newcook').classList.toggle('show',sel.value==='__new');
-  sel.value=uploadPreCook||activeCook||COOKS[0]?.id||"__new";
+  sel.value=uploadPreCook||list[0]?.id||"__new";
   document.getElementById('newcook').classList.toggle('show',sel.value==='__new');
 }
 function renderEmojiPick(){
-  document.getElementById('emojiPick').innerHTML=EMOJIS.map(e=>`<button type="button" class="${e===pickedEmoji?'sel':''}" onclick="pickEmoji('${e}',this)">${e}</button>`).join('');
+  const emojiBtns=EMOJIS.map(e=>`<button type="button" class="${(!pickedAvatarImg&&e===pickedEmoji)?'sel':''}" onclick="pickEmoji('${e}',this)">${e}</button>`).join('');
+  const upBtn=`<button type="button" class="up${pickedAvatarImg?' sel':''}" title="ატვირთე ფოტო" onclick="document.getElementById('nc_photo').click()">${pickedAvatarImg?`<img src="${pickedAvatarImg}" alt="" />`:'📷'}</button>`;
+  document.getElementById('emojiPick').innerHTML=emojiBtns+upBtn;
 }
-function pickEmoji(e,btn){ pickedEmoji=e; document.querySelectorAll('#emojiPick button').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); }
+function pickEmoji(e,btn){ pickedEmoji=e; pickedAvatarImg=null; document.querySelectorAll('#emojiPick button').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); const up=document.querySelector('#emojiPick .up'); if(up){up.classList.remove('sel'); up.innerHTML='📷';} }
+function onPhotoPick(input){
+  const file=input.files&&input.files[0]; if(!file) return;
+  if(!/^image\//.test(file.type)){ toast('აირჩიე სურათის ფაილი'); input.value=''; return; }
+  const img=new Image();
+  img.onload=()=>{
+    const S=160, cv=document.createElement('canvas'); cv.width=S; cv.height=S;
+    const ctx=cv.getContext('2d');
+    const side=Math.min(img.width,img.height), sx=(img.width-side)/2, sy=(img.height-side)/2;
+    ctx.drawImage(img,sx,sy,side,side,0,0,S,S);
+    pickedAvatarImg=cv.toDataURL('image/jpeg',0.82);
+    URL.revokeObjectURL(img.src);
+    renderEmojiPick();
+  };
+  img.onerror=()=>{ toast('სურათი ვერ ჩაიტვირთა'); URL.revokeObjectURL(img.src); };
+  img.src=URL.createObjectURL(file);
+  input.value='';
+}
 let uploadPreCook=null;
 function openUpload(){
   if(!currentUser){ afterAuth='upload'; toast('რეცეპტის ასატვირთად ჯერ შედი ან დარეგისტრირდი'); openAuth('login'); return; }
@@ -674,14 +710,20 @@ async function saveRecipe(){
   btn.disabled=true; btn.textContent='ინახება…';
   try{
     if(sel==='__new'){
-      cookId=uid('cook');
-      await dataAddCook({id:cookId,name:g('nc_name'),city:g('nc_city'),av:pickedEmoji,cc:PALETTES[COOKS.length%PALETTES.length]});
+      const nm=g('nc_name');
+      // იმავე სახელის ბებია თუ უკვე გაქვს — ხელახლა გამოიყენე, არ დაამატო დუბლიკატი
+      const mine=COOKS.find(c=>isMineCook(c)&&(c.name||'').trim().toLowerCase()===nm.toLowerCase());
+      if(mine){
+        cookId=mine.id;
+      }else{
+        cookId=await dataAddCook({id:uid('cook'),name:nm,city:g('nc_city'),av:pickedAvatarImg||pickedEmoji,cc:PALETTES[COOKS.length%PALETTES.length],owner_email:currentUser?.email||null});
+      }
     }
     const emoji=g('f_emoji')||(document.getElementById('f_cat').value==='ტკბილეული'?'🍰':'🍲');
     await dataAddRecipe({id:uid('r'),cook:cookId,name,cat:g('f_cat'),emoji,tb:PALETTES[RECIPES.length%PALETTES.length],
       time:g('f_time')||'—',serves:g('f_serves')||'—',level:document.getElementById('f_level').value,desc,ingredients:ing,steps,tip:g('f_tip')});
 
-    document.getElementById('form').reset(); pickedEmoji=EMOJIS[0];
+    document.getElementById('form').reset(); pickedEmoji=EMOJIS[0]; pickedAvatarImg=null;
     closeUpload();
     renderCooks(); renderFilters(); renderGrid();
     location.hash='#cook/'+cookId;
@@ -840,7 +882,7 @@ function renderSuggest(){
       const c=cookById(r.cook)||{name:'ბებია',av:'👵'};
       const ing=(r.ingredients||[]).find(i=>i.toLowerCase().includes(ql));
       const sub=(ing&&!r.name.toLowerCase().includes(ql))
-        ? `🥄 ${hl(ing,q)}` : `${esc(c.av)} ${esc(c.name)} · ${esc(r.cat)}`;
+        ? `🥄 ${hl(ing,q)}` : `${avatarText(c)} ${esc(c.name)} · ${esc(r.cat)}`;
       return `<div class="sug" role="option" data-idx="${idx}" onmousedown="event.preventDefault()" onclick="pickSuggest('${r.id}')">
         <span class="ic" style="--tb:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}">${esc(r.emoji||'🍽️')}</span>
         <span class="tx"><b>${hl(r.name,q)}</b><small>${sub}</small></span></div>`;

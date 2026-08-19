@@ -98,6 +98,8 @@ async function initDb() {
     );`);
   // migration-safe: არსებულ ბაზას დაუმატე created_by თუ არ აქვს
   await pool.query("alter table recipes add column if not exists created_by integer;");
+  // migration-safe: ბებია მიბმული იყოს შემქმნელ მომხმარებელზე
+  await pool.query("alter table cooks add column if not exists owner_email text;");
 
   const { rows } = await pool.query("select count(*)::int as n from cooks");
   if (rows[0].n === 0) {
@@ -187,7 +189,7 @@ app.post("/api/login", async (req, res) => {
 app.get("/api/data", async (_req, res) => {
   try {
     const [cooks, recipes] = await Promise.all([
-      pool.query("select id,name,city,av,cc from cooks order by created_at asc"),
+      pool.query("select id,name,city,av,cc,owner_email from cooks order by created_at asc"),
       pool.query("select * from recipes order by created_at asc"),
     ]);
     res.json({ cooks: cooks.rows, recipes: recipes.rows.map(rowToRecipe) });
@@ -198,11 +200,18 @@ app.post("/api/cooks", requireAuth, async (req, res) => {
   try {
     const c = req.body || {};
     if (!c.id || !c.name) return res.status(400).json({ error: "id_name_required" });
-    await pool.query(
-      "insert into cooks(id,name,city,av,cc) values($1,$2,$3,$4,$5) on conflict (id) do nothing",
-      [c.id, c.name, c.city || null, c.av || "👵", c.cc || P[0]]
+    const owner = req.user.email;
+    // ერთი მომხმარებლისთვის ერთი და იგივე სახელის ბებია აღარ დაემატოს — დაბრუნდეს არსებული
+    const dup = await pool.query(
+      "select id from cooks where owner_email=$1 and lower(name)=lower($2) limit 1",
+      [owner, c.name]
     );
-    res.status(201).json({ ok: true });
+    if (dup.rowCount) return res.status(200).json({ ok: true, id: dup.rows[0].id, existed: true });
+    await pool.query(
+      "insert into cooks(id,name,city,av,cc,owner_email) values($1,$2,$3,$4,$5,$6) on conflict (id) do nothing",
+      [c.id, c.name, c.city || null, c.av || "👵", c.cc || P[0], owner]
+    );
+    res.status(201).json({ ok: true, id: c.id });
   } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
 });
 
