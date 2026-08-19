@@ -35,13 +35,16 @@ const pool = new Pool({
 
 const app = express();
 app.use(cors({ origin: ORIGIN }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "4mb" })); // კერძის/ავატარის ფოტოები data URL-ად
 
 // ─── row <-> app mapping (desc/time რეზერვირებულია → description/time_text) ───
 const rowToRecipe = (x) => ({
   id: x.id, cook: x.cook, name: x.name, cat: x.cat, emoji: x.emoji, tb: x.tb,
   time: x.time_text, serves: x.serves, level: x.level, desc: x.description,
   ingredients: x.ingredients || [], steps: x.steps || [], tip: x.tip,
+  photo: x.photo || null,
+  rating_avg: x.rating_avg != null ? Number(x.rating_avg) : 0,
+  rating_count: x.rating_count != null ? Number(x.rating_count) : 0,
 });
 
 // ─── seed data (პირველი გაშვებისას) ───
@@ -103,6 +106,28 @@ async function initDb() {
   // migration-safe: ბებიის რეიტინგი (0–5, ხარისხის მიხედვით) და განსხვავებული ნიშანი/სპეციალობა
   await pool.query("alter table cooks add column if not exists rating real default 0;");
   await pool.query("alter table cooks add column if not exists badge text;");
+  // migration-safe: კერძის ფოტო (data URL ან ბმული)
+  await pool.query("alter table recipes add column if not exists photo text;");
+  // ვიზიტორთა შეფასება + კომენტარი (თითო მომხმარებელი — თითო შეფასება რეცეპტზე)
+  await pool.query(`
+    create table if not exists reviews (
+      id text primary key,
+      recipe_id text references recipes(id) on delete cascade,
+      user_id integer references users(id) on delete cascade,
+      user_name text,
+      rating integer not null check (rating between 1 and 5),
+      comment text,
+      created_at timestamptz default now(),
+      unique(recipe_id, user_id)
+    );`);
+  // რჩეული / შენახული რეცეპტები
+  await pool.query(`
+    create table if not exists favorites (
+      user_id integer references users(id) on delete cascade,
+      recipe_id text references recipes(id) on delete cascade,
+      created_at timestamptz default now(),
+      primary key (user_id, recipe_id)
+    );`);
 
   const { rows } = await pool.query("select count(*)::int as n from cooks");
   if (rows[0].n === 0) {
@@ -119,10 +144,10 @@ async function initDb() {
 
 async function insertRecipe(r, userId = null) {
   await pool.query(
-    `insert into recipes(id,cook,name,cat,emoji,tb,time_text,serves,level,description,ingredients,steps,tip,created_by)
-     values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) on conflict (id) do nothing`,
+    `insert into recipes(id,cook,name,cat,emoji,tb,time_text,serves,level,description,ingredients,steps,tip,photo,created_by)
+     values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) on conflict (id) do nothing`,
     [r.id, r.cook, r.name, r.cat, r.emoji, r.tb, r.time, r.serves, r.level, r.desc,
-     JSON.stringify(r.ingredients || []), JSON.stringify(r.steps || []), r.tip || null, userId]
+     JSON.stringify(r.ingredients || []), JSON.stringify(r.steps || []), r.tip || null, r.photo || null, userId]
   );
 }
 
@@ -193,7 +218,14 @@ app.get("/api/data", async (_req, res) => {
   try {
     const [cooks, recipes] = await Promise.all([
       pool.query("select id,name,city,av,cc,owner_email,rating,badge from cooks order by created_at asc"),
-      pool.query("select * from recipes order by created_at asc"),
+      pool.query(`
+        select r.*,
+          coalesce(avg(rv.rating),0)::numeric(3,2) as rating_avg,
+          count(rv.rating)::int as rating_count
+        from recipes r
+        left join reviews rv on rv.recipe_id = r.id
+        group by r.id
+        order by r.created_at asc`),
     ]);
     res.json({ cooks: cooks.rows, recipes: recipes.rows.map(rowToRecipe) });
   } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
@@ -235,6 +267,81 @@ app.delete("/api/recipes/:id", requireAuth, async (req, res) => {
     if (rows[0].created_by != null && rows[0].created_by !== req.user.id && !isAdmin(req.user.email))
       return res.status(403).json({ error: "forbidden", code: "forbidden" });
     await pool.query("delete from recipes where id=$1", [req.params.id]);
+    res.status(204).end();
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+// ── REVIEWS (ვიზიტორთა შეფასება + კომენტარი) ──
+// კონკრეტული რეცეპტის ყველა შეფასება
+app.get("/api/recipes/:id/reviews", async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `select id, recipe_id, user_id, user_name, rating, comment, created_at
+       from reviews where recipe_id=$1 order by created_at desc`,
+      [req.params.id]
+    );
+    const agg = await pool.query(
+      "select coalesce(avg(rating),0)::numeric(3,2) as avg, count(*)::int as count from reviews where recipe_id=$1",
+      [req.params.id]
+    );
+    res.json({
+      reviews: rows,
+      rating_avg: Number(agg.rows[0].avg) || 0,
+      rating_count: agg.rows[0].count || 0,
+    });
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+// შეფასების დამატება/განახლება — თითო მომხმარებელი, თითო შეფასება რეცეპტზე
+app.post("/api/recipes/:id/reviews", requireAuth, async (req, res) => {
+  try {
+    const recipeId = req.params.id;
+    let rating = Number(req.body?.rating);
+    const comment = String(req.body?.comment || "").trim().slice(0, 1000);
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5)
+      return res.status(400).json({ error: "invalid_rating", code: "invalid" });
+    rating = Math.round(rating);
+    const exists = await pool.query("select 1 from recipes where id=$1", [recipeId]);
+    if (!exists.rowCount) return res.status(404).json({ error: "not_found", code: "not_found" });
+    const id = `rev_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+    await pool.query(
+      `insert into reviews(id, recipe_id, user_id, user_name, rating, comment)
+       values($1,$2,$3,$4,$5,$6)
+       on conflict (recipe_id, user_id)
+       do update set rating=excluded.rating, comment=excluded.comment, user_name=excluded.user_name, created_at=now()`,
+      [id, recipeId, req.user.id, req.user.name || null, rating, comment || null]
+    );
+    res.status(201).json({ ok: true });
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+// ── FAVORITES (რჩეული / შენახული) ──
+app.get("/api/favorites", requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "select recipe_id from favorites where user_id=$1 order by created_at desc",
+      [req.user.id]
+    );
+    res.json({ favorites: rows.map((r) => r.recipe_id) });
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+app.post("/api/favorites/:id", requireAuth, async (req, res) => {
+  try {
+    await pool.query(
+      "insert into favorites(user_id, recipe_id) values($1,$2) on conflict do nothing",
+      [req.user.id, req.params.id]
+    );
+    res.status(201).json({ ok: true });
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+app.delete("/api/favorites/:id", requireAuth, async (req, res) => {
+  try {
+    await pool.query(
+      "delete from favorites where user_id=$1 and recipe_id=$2",
+      [req.user.id, req.params.id]
+    );
     res.status(204).end();
   } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
 });

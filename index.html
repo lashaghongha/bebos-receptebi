@@ -133,6 +133,7 @@
   .chip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:9px 18px;border-radius:40px;font-size:14px;font-weight:500;transition:.18s}
   .chip:hover{border-color:var(--accent-2);color:var(--ink);transform:translateY(-1px)}
   .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .chip.fav-chip.active{background:#c15a28;border-color:#c15a28;color:#fff}
 
   .grid{max-width:1120px;margin:0 auto;padding:18px 22px 80px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer;
@@ -235,6 +236,13 @@
   .emoji-pick button.up.sel{border-style:solid;padding:0;overflow:hidden}
   .emoji-pick button.up.sel img{width:100%;height:100%;object-fit:cover;display:block}
   .ava-img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-pick{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .photo-pick .ph-btn{border:1px dashed var(--accent-2);background:var(--paper);color:var(--accent);
+    border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer;transition:.16s}
+  .photo-pick .ph-btn:hover{background:#f8ead0}
+  .photo-pick .ph-prev{width:82px;height:64px;border-radius:12px;object-fit:cover;display:block;border:1px solid var(--line)}
+  .photo-pick .ph-clear{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer}
+  .photo-pick .ph-clear:hover{border-color:#b3261e;color:#b3261e}
   .save{margin-top:4px}
   .err{color:#b3261e;font-size:13px;display:none}
   .err.show{display:block}
@@ -248,6 +256,60 @@
   footer b{font-family:var(--serif);color:var(--ink)}
   .del{background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:40px;padding:8px 15px;font-size:13px;margin-top:22px}
   .del:hover{border-color:#b3261e;color:#b3261e}
+
+  /* card & hero photo */
+  .thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .d-hero.has-photo{padding:0;overflow:hidden}
+  .d-hero .hero-img{width:100%;height:100%;object-fit:cover;display:block}
+  /* card rating row */
+  .card-rate{display:flex;align-items:center;gap:5px;margin-top:2px}
+  .card-rate .rc{font-size:12px;color:var(--ink-soft)}
+  /* favorite heart */
+  .fav{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:none;
+    background:rgba(255,250,240,.92);color:#c9772c;font-size:17px;display:grid;place-items:center;cursor:pointer;
+    box-shadow:0 4px 12px -4px rgba(70,45,20,.4);transition:.16s;line-height:1}
+  .fav:hover{transform:scale(1.12)}
+  .fav.on{background:#c15a28;color:#fff}
+  .d-fav{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    border-radius:40px;padding:9px 17px;font-size:14px;color:var(--ink);font-weight:600;cursor:pointer;transition:.18s;margin-left:8px}
+  .d-fav:hover{border-color:var(--accent)}
+  .d-fav.on{background:#c15a28;color:#fff;border-color:#c15a28}
+  .d-actions{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin:2px 0 20px}
+  .d-actions .author{margin-bottom:0}
+  /* servings stepper */
+  .stat.serves-stat{border-color:var(--accent-2)}
+  .serves-step{display:inline-flex;align-items:center;gap:2px;margin-top:6px}
+  .serves-step button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--paper);
+    color:var(--accent);font-size:16px;font-weight:700;display:grid;place-items:center;line-height:1;cursor:pointer}
+  .serves-step button:hover{border-color:var(--accent);background:#f8ead0}
+  .serves-step b{min-width:22px;text-align:center;font-family:var(--serif);font-size:18px}
+  .ing-scaled{color:var(--accent);font-weight:600}
+  /* reviews */
+  .reviews{margin-top:44px;border-top:1px solid var(--line);padding-top:30px}
+  .reviews .rv-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+  .reviews .rv-head h3{font-family:var(--serif);font-size:24px;margin:0}
+  .rv-avg{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 14px}
+  .rv-avg .big{font-family:var(--serif);font-size:26px;color:var(--ink);line-height:1}
+  .rv-form{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:22px}
+  .rv-form .rv-label{font-size:13.5px;font-weight:600;margin-bottom:8px}
+  .star-in{display:inline-flex;gap:4px;font-size:28px;line-height:1;cursor:pointer;margin-bottom:12px}
+  .star-in span{color:#e2d6c2;transition:.12s}
+  .star-in span.on{color:#e8a13a}
+  .rv-form textarea{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink);font-family:var(--sans);font-size:14px;min-height:64px;resize:vertical;outline:none}
+  .rv-form textarea:focus{border-color:var(--accent-2)}
+  .rv-form .rv-submit{margin-top:12px}
+  .rv-signin{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:22px;color:var(--ink-soft);font-size:14.5px}
+  .rv-signin button{color:var(--accent);font-weight:700;text-decoration:underline}
+  .rv-list{display:flex;flex-direction:column;gap:16px}
+  .rv-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 18px}
+  .rv-item .rv-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .rv-item .rv-ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(150deg,var(--accent),var(--accent-2));
+    color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
+  .rv-item .rv-name{font-weight:700;font-size:14.5px}
+  .rv-item .rv-date{font-size:12px;color:var(--ink-soft);margin-left:auto}
+  .rv-item .rv-cmt{font-size:14.5px;line-height:1.6;color:var(--ink-soft);margin:0}
+  .rv-empty{color:var(--ink-soft);font-size:14.5px;padding:8px 0}
 
   /* mobile bottom tab bar */
   .tabbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;
@@ -358,8 +420,14 @@
       <div class="two">
         <div class="field"><label>კატეგორია <span class="req">*</span></label>
           <select id="f_cat"><option>მთავარი კერძი</option><option>ცომეული</option><option>საწებელი</option><option>გარნირი</option><option>ტკბილეული</option><option>სუპი</option><option>სალათი</option></select></div>
-        <div class="field"><label>ემოჯი (სურათი)</label><input id="f_emoji" placeholder="🍲" maxlength="4" /></div>
+        <div class="field"><label>ემოჯი (თუ ფოტო არ არის)</label><input id="f_emoji" placeholder="🍲" maxlength="4" /></div>
       </div>
+      <div class="field"><label>კერძის ფოტო (სურვილისამებრ)</label>
+        <div class="photo-pick" id="recipePhotoPick">
+          <button type="button" class="ph-btn" onclick="document.getElementById('f_photo').click()">📷 ატვირთე კერძის ფოტო</button>
+        </div>
+        <input type="file" id="f_photo" accept="image/*" hidden onchange="onRecipePhotoPick(this)" />
+        <div class="help">კარგი ფოტო კერძს უფრო მადისაღმძვრელს ხდის.</div></div>
       <div class="three">
         <div class="field"><label>დრო</label><input id="f_time" placeholder="45 წთ" /></div>
         <div class="field"><label>ულუფა</label><input id="f_serves" placeholder="4 კაცი" /></div>
@@ -476,6 +544,7 @@ async function dataInit(){
 function loadLocal(){
   try{ COOKS=JSON.parse(localStorage.getItem(K_COOKS))||SEED_COOKS.slice(); }catch(e){ COOKS=SEED_COOKS.slice(); }
   try{ RECIPES=JSON.parse(localStorage.getItem(K_RECIPES))||SEED_RECIPES.slice(); }catch(e){ RECIPES=SEED_RECIPES.slice(); }
+  loadReviewsLocal();
   saveLocal();
 }
 function saveLocal(){ try{ localStorage.setItem(K_COOKS,JSON.stringify(COOKS)); localStorage.setItem(K_RECIPES,JSON.stringify(RECIPES)); }catch(e){} }
@@ -503,6 +572,62 @@ async function dataDeleteRecipe(id){
   else saveLocal();
 }
 
+/* ── REVIEWS (შეფასება + კომენტარი) ── */
+const K_REVIEWS="bebo_reviews_v1";
+let REVIEWS={};
+function loadReviewsLocal(){ try{ REVIEWS=JSON.parse(localStorage.getItem(K_REVIEWS))||{}; }catch(e){ REVIEWS={}; } }
+function saveReviewsLocal(){ try{ localStorage.setItem(K_REVIEWS,JSON.stringify(REVIEWS)); }catch(e){} }
+// მოცემული რეცეპტის საშუალო რეიტინგი (ბარათებზე საჩვენებლად)
+function recipeRating(r){
+  if(USE_CLOUD) return {avg:Number(r.rating_avg)||0,count:Number(r.rating_count)||0};
+  const list=REVIEWS[r.id]||[], count=list.length;
+  return {avg:count?list.reduce((s,x)=>s+x.rating,0)/count:0,count};
+}
+async function dataGetReviews(recipeId){
+  if(USE_CLOUD) return api('/api/recipes/'+encodeURIComponent(recipeId)+'/reviews');
+  const list=(REVIEWS[recipeId]||[]).slice().sort((a,b)=>(b.created_at||0)-(a.created_at||0));
+  const count=list.length, avg=count?list.reduce((s,r)=>s+r.rating,0)/count:0;
+  return {reviews:list, rating_avg:avg, rating_count:count};
+}
+async function dataAddReview(recipeId,rating,comment){
+  if(USE_CLOUD){
+    await api('/api/recipes/'+encodeURIComponent(recipeId)+'/reviews',{method:'POST',body:JSON.stringify({rating,comment})});
+    // განაახლე ბარათის აგრეგატი მეხსიერებაში
+    try{ const d=await dataGetReviews(recipeId); const rec=RECIPES.find(x=>x.id===recipeId);
+      if(rec){ rec.rating_avg=d.rating_avg; rec.rating_count=d.rating_count; } }catch(e){}
+    return;
+  }
+  const key=(currentUser.email||'').toLowerCase();
+  const list=REVIEWS[recipeId]||[];
+  const ex=list.find(r=>r.user_id===key);
+  if(ex){ ex.rating=rating; ex.comment=comment; ex.user_name=currentUser.name; ex.created_at=Date.now(); }
+  else list.push({id:uid('rev'),user_id:key,user_name:currentUser.name,rating,comment,created_at:Date.now()});
+  REVIEWS[recipeId]=list; saveReviewsLocal();
+}
+
+/* ── FAVORITES (რჩეული / შენახული) ── */
+const K_FAVS="bebo_favs_v1";
+let FAVORITES=new Set();
+const favKey=()=>(currentUser&&currentUser.email||'').toLowerCase();
+async function dataLoadFavorites(){
+  FAVORITES=new Set();
+  if(!currentUser) return;
+  if(USE_CLOUD){ try{ const res=await api('/api/favorites'); FAVORITES=new Set(res.favorites||[]); }catch(e){} }
+  else{ try{ const all=JSON.parse(localStorage.getItem(K_FAVS))||{}; FAVORITES=new Set(all[favKey()]||[]); }catch(e){} }
+}
+function saveFavsLocal(){
+  try{ const all=JSON.parse(localStorage.getItem(K_FAVS))||{}; all[favKey()]=[...FAVORITES]; localStorage.setItem(K_FAVS,JSON.stringify(all)); }catch(e){}
+}
+async function dataToggleFav(id){
+  const on=FAVORITES.has(id);
+  if(on) FAVORITES.delete(id); else FAVORITES.add(id);
+  if(USE_CLOUD){
+    try{ await api('/api/favorites/'+encodeURIComponent(id),{method:on?'DELETE':'POST'}); }
+    catch(e){ if(on) FAVORITES.add(id); else FAVORITES.delete(id); throw e; }
+  }else saveFavsLocal();
+  return !on;
+}
+
 function setMode(cloud,msg){
   const b=document.getElementById('modeBanner'), t=document.getElementById('modeText');
   b.classList.toggle('cloud',cloud); b.classList.toggle('local',!cloud);
@@ -511,7 +636,7 @@ function setMode(cloud,msg){
 }
 
 /* ═══════════ STATE & UI ═══════════ */
-let activeCook=null, activeCat="ყველა", query="";
+let activeCook=null, activeCat="ყველა", query="", favOnly=false;
 const cooksEl=document.getElementById('cooks'), gridEl=document.getElementById('grid');
 const filtersEl=document.getElementById('filters'), searchEl=document.getElementById('search');
 const gridTitle=document.getElementById('gridTitle'), gridCount=document.getElementById('gridCount');
@@ -545,32 +670,59 @@ function selectCook(id){ activeCook=id; activeCat="ყველა"; renderCooks
 
 function cardHTML(r,showBy){
   const c=cookById(r.cook)||{name:"ბებია",cc:"#e8cfa6",av:"👵"};
+  const rt=recipeRating(r);
+  const fav=FAVORITES.has(r.id);
+  const thumb=isImg(r.photo)
+    ? `<img class="thumb-img" src="${r.photo}" alt="${esc(r.name)}" loading="lazy" /><span class="cat">${esc(r.cat)}</span>`
+    : `<span class="cat">${esc(r.cat)}</span>${esc(r.emoji||'🍽️')}`;
   return `<article class="card" onclick="openDetail('${r.id}')">
-      <div class="thumb" style="--tb:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}"><span class="cat">${esc(r.cat)}</span>${esc(r.emoji||'🍽️')}</div>
+      <div class="thumb" style="--tb:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}">${thumb}
+        <button class="fav${fav?' on':''}" title="რჩეულებში შენახვა" aria-label="რჩეული" onclick="toggleFav(event,'${r.id}')">${fav?'❤':'♡'}</button></div>
       <div class="body"><h3>${esc(r.name)}</h3><p>${esc(r.desc)}</p>
+        ${rt.count?`<div class="card-rate">${starsHTML(rt.avg)}<span class="rc">(${rt.count})</span></div>`:''}
         ${showBy?`<div class="by"><span class="dot" style="--cc:${c.cc}">${avatarInner(c)}</span>${esc(c.name)}</div>`:''}
         <div class="foot"><span>⏱ ${esc(r.time||'—')}</span><span>👥 ${esc(r.serves||'—')}</span><span>📊 ${esc(r.level||'—')}</span></div>
       </div></article>`;
+}
+async function toggleFav(ev,id){
+  ev.stopPropagation();
+  if(!currentUser){ toast('შესანახად ჯერ შედი ანგარიშზე'); openAuth('login'); return; }
+  try{
+    const on=await dataToggleFav(id);
+    const btn=ev.currentTarget; btn.classList.toggle('on',on); btn.textContent=on?'❤':'♡';
+    // დეტალის გვერდზეც განაახლე ღილაკი, თუ ღიაა
+    const dbtn=document.getElementById('dFav'); if(dbtn&&dbtn.dataset.id===id){ dbtn.classList.toggle('on',on); dbtn.innerHTML=(on?'❤':'♡')+' '+(on?'შენახულია':'შენახვა'); }
+    if(favOnly) renderGrid();
+    toast(on?'რჩეულებში დაემატა ❤':'რჩეულებიდან ამოიშალა');
+  }catch(e){ toast('ვერ შევინახე — სცადე თავიდან'); }
 }
 
 function renderFilters(){
   const pool=activeCook?recipesOf(activeCook):RECIPES;
   const cats=["ყველა",...new Set(pool.map(r=>r.cat))];
-  filtersEl.innerHTML=cats.map(c=>`<button class="chip ${c===activeCat?'active':''}" onclick="setCat('${esc(c)}')">${esc(c)}</button>`).join('');
+  const favBtn=`<button class="chip fav-chip ${favOnly?'active':''}" onclick="toggleFavOnly()">❤ რჩეული${FAVORITES.size?' ('+FAVORITES.size+')':''}</button>`;
+  filtersEl.innerHTML=favBtn+cats.map(c=>`<button class="chip ${c===activeCat?'active':''}" onclick="setCat('${esc(c)}')">${esc(c)}</button>`).join('');
 }
 function setCat(c){ activeCat=c; renderFilters(); renderGrid(); }
+function toggleFavOnly(){
+  if(!favOnly&&!currentUser){ toast('რჩეულების სანახავად ჯერ შედი ანგარიშზე'); openAuth('login'); return; }
+  favOnly=!favOnly; renderFilters(); renderGrid();
+}
 
 function renderGrid(){
   const q=query.trim().toLowerCase();
   let list=(activeCook?recipesOf(activeCook):RECIPES.slice()).filter(r=>{
     const catOk=activeCat==="ყველა"||r.cat===activeCat;
     const qOk=!q||r.name.toLowerCase().includes(q)||(r.desc||'').toLowerCase().includes(q)||(r.ingredients||[]).some(i=>i.toLowerCase().includes(q));
-    return catOk&&qOk;
+    const favOk=!favOnly||FAVORITES.has(r.id);
+    return catOk&&qOk&&favOk;
   });
   const cook=activeCook?cookById(activeCook):null;
-  gridTitle.textContent=cook?`${cook.name} · კერძები`:"ყველა რეცეპტი";
+  gridTitle.textContent=favOnly?"❤ ჩემი რჩეულები":(cook?`${cook.name} · კერძები`:"ყველა რეცეპტი");
   gridCount.textContent=`${list.length} რეცეპტი`;
-  if(!list.length){ gridEl.innerHTML=`<div class="empty">🔍 აქ ჯერ არაფერია — ატვირთე პირველი რეცეპტი ღილაკით „＋ რეცეპტის ატვირთვა“.</div>`; return; }
+  if(!list.length){ gridEl.innerHTML=favOnly
+      ?`<div class="empty">❤ რჩეულები ჯერ ცარიელია — ბარათზე გულის ღილაკით შეინახე მოსაწონი რეცეპტები.</div>`
+      :`<div class="empty">🔍 აქ ჯერ არაფერია — ატვირთე პირველი რეცეპტი ღილაკით „＋ რეცეპტის ატვირთვა“.</div>`; return; }
   gridEl.innerHTML=list.map(r=>cardHTML(r,true)).join('');
 }
 
@@ -613,25 +765,122 @@ function showCook(id){
 
 function renderRecipe(r){
   const c=cookById(r.cook)||{name:"ბებია",city:"",cc:"#e8cfa6",av:"👵"};
+  const base=parseServes(r.serves), unit=servesUnit(r.serves);
+  RECIPE_CTX={r,base,unit,serves:base||0};
+  const rt=recipeRating(r);
+  const fav=FAVORITES.has(r.id);
+  const hero=isImg(r.photo)
+    ? `<div class="d-hero has-photo"><img class="hero-img" src="${r.photo}" alt="${esc(r.name)}" /></div>`
+    : `<div class="d-hero" style="background:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}">${esc(r.emoji||'🍽️')}</div>`;
+  const servesStat=base
+    ? `<div class="stat serves-stat"><small>ულუფა</small><b id="servesStat">${base} ${esc(unit)}</b>
+        <div class="serves-step"><button type="button" onclick="changeServes(-1)" aria-label="ნაკლები">−</button><b id="servesVal">${base}</b><button type="button" onclick="changeServes(1)" aria-label="მეტი">+</button></div></div>`
+    : `<div class="stat"><small>ულუფა</small><b>${esc(r.serves||'—')}</b></div>`;
   detailInner.innerHTML=`
     <button class="back" onclick="history.back()">← უკან დაბრუნება</button>
-    <div class="d-hero" style="background:${r.tb||'linear-gradient(150deg,#f3e3c8,#e8cfa6)'}">${esc(r.emoji||'🍽️')}</div>
+    ${hero}
     <div class="d-cat">${esc(r.cat)}</div><h2>${esc(r.name)}</h2>
-    <div class="author" onclick="openCook('${r.cook}')">
-      <span class="av" style="--cc:${c.cc}">${avatarInner(c)}</span>
-      <span><b>${esc(c.name)}</b>${c.city?`<br><small>${esc(c.city)}</small>`:''}</span></div>
+    <div class="d-actions">
+      <div class="author" onclick="openCook('${r.cook}')">
+        <span class="av" style="--cc:${c.cc}">${avatarInner(c)}</span>
+        <span><b>${esc(c.name)}</b>${c.city?`<br><small>${esc(c.city)}</small>`:''}</span></div>
+      <button class="d-fav${fav?' on':''}" id="dFav" data-id="${r.id}" onclick="toggleFav(event,'${r.id}')">${fav?'❤':'♡'} ${fav?'შენახულია':'შენახვა'}</button>
+    </div>
     <p class="d-desc">${esc(r.desc)}</p>
     <div class="d-stats">
       <div class="stat"><small>დრო</small><b>${esc(r.time||'—')}</b></div>
-      <div class="stat"><small>ულუფა</small><b>${esc(r.serves||'—')}</b></div>
+      ${servesStat}
       <div class="stat"><small>სირთულე</small><b>${esc(r.level||'—')}</b></div>
-      <div class="stat"><small>ინგრედიენტი</small><b>${(r.ingredients||[]).length} ცალი</b></div></div>
+      <div class="stat"><small>შეფასება</small><b>${rt.count?starsHTML(rt.avg)+' ('+rt.count+')':'—'}</b></div></div>
     <div class="cols">
-      <div><h3 class="sec-title">ინგრედიენტები</h3><div class="ingredients"><ul>${(r.ingredients||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div></div>
+      <div><h3 class="sec-title">ინგრედიენტები</h3><div class="ingredients"><ul id="ingList">${(r.ingredients||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div></div>
       <div><h3 class="sec-title">მომზადება</h3><ol class="steps">${(r.steps||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
         ${r.tip?`<div class="tip"><b>ბებოს რჩევა:</b> ${esc(r.tip)}</div>`:''}
         ${currentUser?`<button class="del" onclick="deleteRecipe('${r.id}')">🗑 რეცეპტის წაშლა</button>`:''}</div>
-    </div>`;
+    </div>
+    <div class="reviews" id="reviewsBox"><div class="rv-empty">შეფასებები იტვირთება…</div></div>`;
+  loadRecipeReviews(r.id);
+}
+
+/* ── ულუფების კალკულატორი ── */
+let RECIPE_CTX=null;
+function parseServes(s){ const m=String(s==null?'':s).match(/\d+(?:[.,]\d+)?/); return m?Math.round(parseFloat(m[0].replace(',','.'))):0; }
+function servesUnit(s){ const u=String(s==null?'':s).replace(/\d+(?:[.,]\d+)?/,'').trim(); return u||'ულუფა'; }
+function fmtQty(n){ const r=Math.round(n*100)/100; if(Math.abs(r-Math.round(r))<0.02) return String(Math.round(r)); return String(r).replace('.',','); }
+function scaleQty(text,factor){
+  if(!factor||factor===1) return esc(text);
+  const scaled=String(text).replace(/\d+(?:[.,]\d+)?(?:\s*\/\s*\d+)?/g,(m)=>{
+    let val;
+    if(m.includes('/')){ const p=m.split('/').map(x=>parseFloat(x.replace(',','.'))); val=p[0]/p[1]; }
+    else val=parseFloat(m.replace(',','.'));
+    if(!isFinite(val)) return m;
+    return fmtQty(val*factor);
+  });
+  return `<span class="ing-scaled">${esc(scaled)}</span>`;
+}
+function changeServes(delta){
+  if(!RECIPE_CTX) return;
+  RECIPE_CTX.serves=Math.max(1,Math.min(999,(RECIPE_CTX.serves||1)+delta));
+  const {r,base,unit,serves}=RECIPE_CTX;
+  const factor=base?serves/base:1;
+  const ul=document.getElementById('ingList');
+  if(ul) ul.innerHTML=(r.ingredients||[]).map(i=>`<li>${scaleQty(i,factor)}</li>`).join('');
+  const sv=document.getElementById('servesVal'); if(sv) sv.textContent=serves;
+  const st=document.getElementById('servesStat'); if(st) st.textContent=serves+' '+unit;
+}
+
+/* ── შეფასებების რენდერი ── */
+let reviewRating=0;
+async function loadRecipeReviews(id){
+  let data;
+  try{ data=await dataGetReviews(id); }catch(e){ data={reviews:[],rating_avg:0,rating_count:0}; }
+  const box=document.getElementById('reviewsBox');
+  if(!box||!RECIPE_CTX||RECIPE_CTX.r.id!==id) return;
+  const mine=currentUser?data.reviews.find(rv=>String(rv.user_id).toLowerCase()===String(USE_CLOUD?currentUser.id:(currentUser.email||'').toLowerCase()).toLowerCase()):null;
+  reviewRating=mine?mine.rating:0;
+  const head=`<div class="rv-head"><h3>შეფასებები</h3>
+    ${data.rating_count?`<div class="rv-avg"><span class="big">${(Math.round(data.rating_avg*10)/10).toFixed(1)}</span>${starsHTML(data.rating_avg)}<span class="rc">${data.rating_count} შეფასება</span></div>`:'<span class="rv-empty">ჯერ არავის შეუფასებია — იყავი პირველი!</span>'}</div>`;
+  const form=currentUser
+    ? `<div class="rv-form">
+        <div class="rv-label">${mine?'შენი შეფასება (შეგიძლია შეცვალო)':'დაუტოვე შეფასება ამ კერძს'}</div>
+        <div class="star-in" id="starIn">${[1,2,3,4,5].map(n=>`<span data-n="${n}" onclick="setReviewStar(${n})">${n<=reviewRating?'★':'☆'}</span>`).join('')}</div>
+        <textarea id="rvComment" placeholder="რას ფიქრობ კერძზე? (სურვილისამებრ)">${mine?esc(mine.comment||''):''}</textarea>
+        <button class="btn primary rv-submit" onclick="submitReview('${id}')">${mine?'შეფასების განახლება':'გამოქვეყნება'}</button>
+      </div>`
+    : `<div class="rv-signin">შესაფასებლად საჭიროა ანგარიში. <button onclick="openAuth('login')">შედი ან დარეგისტრირდი</button></div>`;
+  const list=data.reviews.length
+    ? `<div class="rv-list">${data.reviews.map(rv=>{
+        const nm=rv.user_name||'ვიზიტორი', ini=nm.trim().charAt(0).toUpperCase();
+        return `<div class="rv-item"><div class="rv-top"><span class="rv-ava">${esc(ini)}</span>
+          <span class="rv-name">${esc(nm)}</span>${starsHTML(rv.rating)}<span class="rv-date">${fmtDate(rv.created_at)}</span></div>
+          ${rv.comment?`<p class="rv-cmt">${esc(rv.comment)}</p>`:''}</div>`;
+      }).join('')}</div>`
+    : '';
+  box.innerHTML=head+form+list;
+}
+function setReviewStar(n){
+  reviewRating=n;
+  const el=document.getElementById('starIn'); if(!el) return;
+  el.querySelectorAll('span').forEach(s=>{ const on=+s.dataset.n<=n; s.textContent=on?'★':'☆'; s.classList.toggle('on',on); });
+}
+async function submitReview(id){
+  if(!currentUser){ openAuth('login'); return; }
+  if(!reviewRating){ toast('აირჩიე ვარსკვლავები (1–5)'); return; }
+  const comment=(document.getElementById('rvComment')?.value||'').trim();
+  try{
+    await dataAddReview(id,reviewRating,comment);
+    toast('მადლობა შეფასებისთვის! ⭐');
+    await loadRecipeReviews(id);
+    renderGrid(); // ბარათებზე საშუალო რეიტინგი განახლდეს
+  }catch(e){
+    if(e.code==='auth'||e.status===401){ afterAuth=null; openAuth('login'); return; }
+    toast('შეფასება ვერ გაიგზავნა');
+  }
+}
+function fmtDate(v){
+  const d=v?new Date(typeof v==='number'?v:v):null;
+  if(!d||isNaN(d)) return '';
+  return d.toLocaleDateString('ka-GE',{year:'numeric',month:'short',day:'numeric'});
 }
 
 function renderCookPage(){
@@ -704,13 +953,38 @@ function onPhotoPick(input){
   img.src=URL.createObjectURL(file);
   input.value='';
 }
+let pickedRecipePhoto=null;
+function renderRecipePhotoPick(){
+  const el=document.getElementById('recipePhotoPick'); if(!el) return;
+  el.innerHTML=pickedRecipePhoto
+    ? `<img class="ph-prev" src="${pickedRecipePhoto}" alt="" /><button type="button" class="ph-btn" onclick="document.getElementById('f_photo').click()">🔄 შეცვალე</button><button type="button" class="ph-clear" onclick="clearRecipePhoto()">✕ წაშალე</button>`
+    : `<button type="button" class="ph-btn" onclick="document.getElementById('f_photo').click()">📷 ატვირთე კერძის ფოტო</button>`;
+}
+function clearRecipePhoto(){ pickedRecipePhoto=null; renderRecipePhotoPick(); }
+function onRecipePhotoPick(input){
+  const file=input.files&&input.files[0]; if(!file) return;
+  if(!/^image\//.test(file.type)){ toast('აირჩიე სურათის ფაილი'); input.value=''; return; }
+  const img=new Image();
+  img.onload=()=>{
+    const MAX=900, ratio=Math.min(1,MAX/Math.max(img.width,img.height));
+    const w=Math.round(img.width*ratio), h=Math.round(img.height*ratio);
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+    cv.getContext('2d').drawImage(img,0,0,w,h);
+    pickedRecipePhoto=cv.toDataURL('image/jpeg',0.8);
+    URL.revokeObjectURL(img.src);
+    renderRecipePhotoPick();
+  };
+  img.onerror=()=>{ toast('სურათი ვერ ჩაიტვირთა'); URL.revokeObjectURL(img.src); };
+  img.src=URL.createObjectURL(file);
+  input.value='';
+}
 let uploadPreCook=null;
 function openUpload(){
   if(!currentUser){ afterAuth='upload'; toast('რეცეპტის ასატვირთად ჯერ შედი ან დარეგისტრირდი'); openAuth('login'); return; }
-  renderCookSelect(); renderEmojiPick(); modal.classList.add('open'); document.body.style.overflow='hidden';
+  renderCookSelect(); renderEmojiPick(); renderRecipePhotoPick(); modal.classList.add('open'); document.body.style.overflow='hidden';
 }
 function openUploadFor(cookId){ uploadPreCook=cookId; openUpload(); }
-function closeUpload(){ modal.classList.remove('open'); uploadPreCook=null; if(!location.hash) document.body.style.overflow=''; document.getElementById('formErr').classList.remove('show'); }
+function closeUpload(){ modal.classList.remove('open'); uploadPreCook=null; pickedRecipePhoto=null; renderRecipePhotoPick(); if(!location.hash) document.body.style.overflow=''; document.getElementById('formErr').classList.remove('show'); }
 
 const uid=p=>p+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const lines=v=>v.split('\n').map(s=>s.trim()).filter(Boolean);
@@ -739,9 +1013,9 @@ async function saveRecipe(){
     }
     const emoji=g('f_emoji')||(document.getElementById('f_cat').value==='ტკბილეული'?'🍰':'🍲');
     await dataAddRecipe({id:uid('r'),cook:cookId,name,cat:g('f_cat'),emoji,tb:PALETTES[RECIPES.length%PALETTES.length],
-      time:g('f_time')||'—',serves:g('f_serves')||'—',level:document.getElementById('f_level').value,desc,ingredients:ing,steps,tip:g('f_tip')});
+      time:g('f_time')||'—',serves:g('f_serves')||'—',level:document.getElementById('f_level').value,desc,ingredients:ing,steps,tip:g('f_tip'),photo:pickedRecipePhoto||null});
 
-    document.getElementById('form').reset(); pickedEmoji=EMOJIS[0]; pickedAvatarImg=null;
+    document.getElementById('form').reset(); pickedEmoji=EMOJIS[0]; pickedAvatarImg=null; pickedRecipePhoto=null;
     closeUpload();
     renderCooks(); renderFilters(); renderGrid();
     location.hash='#cook/'+cookId;
@@ -796,7 +1070,7 @@ async function authLogin(email,pass){
   if(!a||a.pass!==hashPass(pass)){ const e=new Error('bad'); e.code='bad'; throw e; }
   setSession({name:a.name,email:a.email},'local');
 }
-function authLogout(){ setSession(null); toast('გამოხვედი ანგარიშიდან'); }
+function authLogout(){ setSession(null); FAVORITES=new Set(); favOnly=false; renderCooks(); renderFilters(); renderGrid(); toast('გამოხვედი ანგარიშიდან'); }
 
 function renderAuth(){
   const el=document.getElementById('authArea');
@@ -845,6 +1119,8 @@ async function submitAuth(){
     else await authLogin(email,pass);
     document.getElementById('authForm').reset();
     authModal.classList.remove('open');
+    await dataLoadFavorites();
+    renderCooks(); renderFilters(); renderGrid();
     toast('კეთილი იყოს შენი მობრძანება, '+(currentUser.name||'')+'! 👋');
     const next=afterAuth; afterAuth=null;
     if(next==='upload') openUpload(); else if(!location.hash&&!modal.classList.contains('open')) document.body.style.overflow='';
@@ -936,6 +1212,7 @@ window.addEventListener('hashchange',router);
 (async function(){
   loadSession(); renderAuth();
   await dataInit();
+  await dataLoadFavorites();
   renderCooks(); renderFilters(); renderGrid();
   router();
 })();
