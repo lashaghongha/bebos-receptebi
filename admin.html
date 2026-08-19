@@ -100,6 +100,21 @@
   .del:hover{border-color:var(--danger);color:var(--danger)}
   .empty{padding:40px 20px;text-align:center;color:var(--ink-soft)}
 
+  /* cook rating editor */
+  .avs.cavs{overflow:hidden;background:#f3e3c8}
+  .avs.cavs img{width:100%;height:100%;object-fit:cover;display:block}
+  .rate-cell{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .stars-mini{position:relative;display:inline-block;font-size:15px;letter-spacing:1.5px;line-height:1;white-space:nowrap}
+  .stars-mini .bg{color:#e2d6c2}
+  .stars-mini .fg{color:#e8a13a;position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap}
+  select.rate-in{font-family:var(--sans);font-size:13px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);cursor:pointer}
+  input.badge-in{font-family:var(--sans);font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);width:100%;max-width:230px}
+  input.badge-in:focus,select.rate-in:focus{outline:none;border-color:var(--accent)}
+  button.save-c{border:0;background:var(--accent);color:#fff;font-family:var(--sans);font-weight:700;font-size:12.5px;padding:8px 15px;border-radius:9px;cursor:pointer;transition:.15s;white-space:nowrap}
+  button.save-c:hover{background:#a94a20}
+  button.save-c:disabled{opacity:.4;cursor:default;background:var(--ink-soft)}
+  button.save-c.saved{background:var(--ok)}
+
   /* login gate */
   .gate{max-width:400px;margin:8vh auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px 28px 28px;box-shadow:var(--shadow)}
   .gate-logo{width:58px;height:58px;border-radius:17px;background:linear-gradient(150deg,var(--accent),#8a3f1c);
@@ -218,6 +233,7 @@
     <div class="tabs">
       <button id="tabUsersBtn" class="on" onclick="showTab('users')">მომხმარებლები<span class="cnt" id="cntUsers"></span></button>
       <button id="tabRecipesBtn" onclick="showTab('recipes')">რეცეპტები<span class="cnt" id="cntRecipes"></span></button>
+      <button id="tabCooksBtn" onclick="showTab('cooks')">ბებოები<span class="cnt" id="cntCooks"></span></button>
     </div>
 
     <section class="panel on" id="panelUsers">
@@ -234,6 +250,15 @@
         <table>
           <thead><tr><th>რეცეპტი</th><th>კატეგორია</th><th>ბებია</th><th>ვინ ატვირთა</th><th>თარიღი</th><th></th></tr></thead>
           <tbody id="recipesBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="panelCooks">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ბებია</th><th>ქალაქი</th><th>რეცეპტები</th><th>რეიტინგი (ხარისხი)</th><th>განსხვავებული / სპეციალობა</th><th></th></tr></thead>
+          <tbody id="cooksBody"></tbody>
         </table>
       </div>
     </section>
@@ -262,10 +287,16 @@ async function api(path, opts){
   return res.status===204?null:res.json();
 }
 
+/* ─── helpers: ბებიის ავატარი და რეიტინგი ─── */
+const isImg=v=>typeof v==='string'&&v.slice(0,5)==='data:';
+const clampR=v=>{ v=Number(v)||0; return Math.max(0,Math.min(5,Math.round(v*2)/2)); };
+function rateOptions(sel){ let o=''; for(let v=0;v<=5;v+=0.5){ o+=`<option value="${v}"${v===sel?' selected':''}>${v===0?'—':v.toFixed(1)}</option>`; } return o; }
+function starsMini(r){ const pct=(clampR(r)/5*100).toFixed(1); return `<span class="stars-mini"><span class="bg">★★★★★</span><span class="fg" style="width:${pct}%">★★★★★</span></span>`; }
+
 /* ─── state ─── */
 let USERS=[], RECIPES=[], COOKS=[];
 let filterQ='';
-function onFilter(v){ filterQ=(v||'').trim().toLowerCase(); renderUsers(); renderRecipes(); }
+function onFilter(v){ filterQ=(v||'').trim().toLowerCase(); renderUsers(); renderRecipes(); renderCooks(); }
 
 /* ═══════════ BOOT ═══════════ */
 (async function(){
@@ -306,11 +337,11 @@ async function loadCloud(me){
     <button onclick="logout()">გასვლა</button>`;
   const mb=$('modebar'); mb.className='modebar cloud'; $('modeText').textContent='საერთო ბაზა (Cloud)';
   try{
-    const [stats,u,r]=await Promise.all([api('/api/admin/stats'),api('/api/admin/users'),api('/api/admin/recipes')]);
+    const [stats,u,r,c]=await Promise.all([api('/api/admin/stats'),api('/api/admin/users'),api('/api/admin/recipes'),api('/api/admin/cooks')]);
     $('stUsers').textContent=stats.users; $('stRecipes').textContent=stats.recipes; $('stCooks').textContent=stats.cooks;
-    USERS=u.users||[]; RECIPES=r.recipes||[];
-    renderUsers(); renderRecipes();
-  }catch(e){ $('usersBody').innerHTML=errRow(4); $('recipesBody').innerHTML=errRow(6); }
+    USERS=u.users||[]; RECIPES=r.recipes||[]; COOKS=c.cooks||[];
+    renderUsers(); renderRecipes(); renderCooks();
+  }catch(e){ $('usersBody').innerHTML=errRow(4); $('recipesBody').innerHTML=errRow(6); $('cooksBody').innerHTML=errRow(6); }
 }
 
 /* ─── LOCAL (ამ ბრაუზერის მონაცემები) ─── */
@@ -335,9 +366,10 @@ function bootLocal(){
     id:r.id, name:r.name, cat:r.cat, emoji:r.emoji, cook:r.cook, cook_name:cookName(r.cook),
     created_at:r._at||null, created_by:r._by?1:null, author_name:r._byName||null, author_email:r._by||null
   }));
+  COOKS=COOKS.map(c=>({...c, recipe_count:RECIPES.filter(r=>r.cook===c.id).length}));
 
   $('stUsers').textContent=USERS.length; $('stRecipes').textContent=RECIPES.length; $('stCooks').textContent=COOKS.length;
-  renderUsers(); renderRecipes();
+  renderUsers(); renderRecipes(); renderCooks();
 }
 
 /* ─── render ─── */
@@ -386,6 +418,54 @@ function renderRecipes(){
   }).join('');
 }
 
+function renderCooks(){
+  const b=$('cooksBody'), cnt=$('cntCooks');
+  if(!b) return;
+  if(cnt) cnt.textContent=COOKS.length;
+  if(!COOKS.length){ b.innerHTML=`<tr><td colspan="6" class="empty">ჯერ არცერთი ბებია.</td></tr>`; return; }
+  const list=filterQ
+    ? COOKS.filter(c=>((c.name||'')+' '+(c.city||'')+' '+(c.badge||'')).toLowerCase().includes(filterQ))
+    : COOKS;
+  if(!list.length){ b.innerHTML=`<tr><td colspan="6" class="empty">ვერაფერი მოიძებნა „${esc(filterQ)}“-ზე.</td></tr>`; return; }
+  b.innerHTML=list.map(c=>{
+    const av=isImg(c.av)?`<img src="${c.av}" alt="">`:esc(c.av||'👵');
+    const rt=clampR(c.rating);
+    return `<tr data-id="${esc(c.id)}">
+      <td class="head" data-label="ბებია"><span class="avs cavs">${av}</span><span class="nm">${esc(c.name||'—')}</span></td>
+      <td class="muted" data-label="ქალაქი">${esc(c.city||'—')}</td>
+      <td data-label="რეცეპტები"><span class="pill">${c.recipe_count||0}</span></td>
+      <td data-label="რეიტინგი"><div class="rate-cell">${starsMini(rt)}<select class="rate-in" onchange="onCookChange(this)">${rateOptions(rt)}</select></div></td>
+      <td data-label="განსხვავებული"><input class="badge-in" maxlength="60" value="${esc(c.badge||'')}" placeholder="მაგ. აჭარული ხაჭაპურის ოსტატი" oninput="onCookChange(this)" /></td>
+      <td class="act"><button class="save-c" disabled onclick="saveCook(this)">შენახვა</button></td>
+    </tr>`;
+  }).join('');
+}
+function onCookChange(el){
+  const row=el.closest('tr'); if(!row) return;
+  const btn=row.querySelector('.save-c'); if(btn){ btn.disabled=false; btn.classList.remove('saved'); btn.textContent='შენახვა'; }
+  const rt=clampR(row.querySelector('.rate-in').value);
+  const fg=row.querySelector('.stars-mini .fg'); if(fg) fg.style.width=(rt/5*100).toFixed(1)+'%';
+}
+async function saveCook(btn){
+  const row=btn.closest('tr'); const id=row.getAttribute('data-id');
+  const rating=clampR(row.querySelector('.rate-in').value);
+  const badge=row.querySelector('.badge-in').value.trim();
+  btn.disabled=true; btn.textContent='ინახება…';
+  try{
+    if(USE_CLOUD){
+      await api('/api/admin/cooks/'+encodeURIComponent(id),{method:'PATCH',body:JSON.stringify({rating,badge})});
+    }else{
+      let list=[]; try{ list=JSON.parse(localStorage.getItem(K_COOKS))||[]; }catch(e){}
+      list=list.map(c=>c.id===id?{...c,rating,badge:badge||null}:c);
+      try{ localStorage.setItem(K_COOKS,JSON.stringify(list)); }catch(e){}
+    }
+    const c=COOKS.find(x=>x.id===id); if(c){ c.rating=rating; c.badge=badge||null; }
+    btn.textContent='✔ შენახულია'; btn.classList.add('saved');
+  }catch(e){
+    alert('შენახვა ვერ მოხერხდა.'); btn.disabled=false; btn.textContent='შენახვა';
+  }
+}
+
 /* ─── actions ─── */
 async function delRecipe(id){
   if(!confirm('ნამდვილად წავშალო ეს რეცეპტი?')) return;
@@ -403,9 +483,12 @@ async function delRecipe(id){
 }
 
 function showTab(t){
-  const u=t==='users';
-  $('tabUsersBtn').classList.toggle('on',u); $('tabRecipesBtn').classList.toggle('on',!u);
-  $('panelUsers').classList.toggle('on',u); $('panelRecipes').classList.toggle('on',!u);
+  $('tabUsersBtn').classList.toggle('on',t==='users');
+  $('tabRecipesBtn').classList.toggle('on',t==='recipes');
+  $('tabCooksBtn').classList.toggle('on',t==='cooks');
+  $('panelUsers').classList.toggle('on',t==='users');
+  $('panelRecipes').classList.toggle('on',t==='recipes');
+  $('panelCooks').classList.toggle('on',t==='cooks');
 }
 
 function logout(){

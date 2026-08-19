@@ -100,6 +100,9 @@ async function initDb() {
   await pool.query("alter table recipes add column if not exists created_by integer;");
   // migration-safe: ბებია მიბმული იყოს შემქმნელ მომხმარებელზე
   await pool.query("alter table cooks add column if not exists owner_email text;");
+  // migration-safe: ბებიის რეიტინგი (0–5, ხარისხის მიხედვით) და განსხვავებული ნიშანი/სპეციალობა
+  await pool.query("alter table cooks add column if not exists rating real default 0;");
+  await pool.query("alter table cooks add column if not exists badge text;");
 
   const { rows } = await pool.query("select count(*)::int as n from cooks");
   if (rows[0].n === 0) {
@@ -189,7 +192,7 @@ app.post("/api/login", async (req, res) => {
 app.get("/api/data", async (_req, res) => {
   try {
     const [cooks, recipes] = await Promise.all([
-      pool.query("select id,name,city,av,cc,owner_email from cooks order by created_at asc"),
+      pool.query("select id,name,city,av,cc,owner_email,rating,badge from cooks order by created_at asc"),
       pool.query("select * from recipes order by created_at asc"),
     ]);
     res.json({ cooks: cooks.rows, recipes: recipes.rows.map(rowToRecipe) });
@@ -266,6 +269,41 @@ app.get("/api/admin/recipes", requireAdmin, async (_req, res) => {
       left join users u on u.id = r.created_by
       order by r.created_at desc`);
     res.json({ recipes: rows });
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+// ყველა ბებია — რეიტინგით, განსხვავებული ნიშნით და ატვირთული რეცეპტების რაოდენობით
+app.get("/api/admin/cooks", requireAdmin, async (_req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      select c.id, c.name, c.city, c.av, c.cc, c.owner_email, c.rating, c.badge, c.created_at,
+        (select count(*)::int from recipes r where r.cook = c.id) as recipe_count
+      from cooks c
+      order by (select count(*) from recipes r where r.cook = c.id) desc, c.created_at asc`);
+    res.json({ cooks: rows });
+  } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
+});
+
+// ბებიის რეიტინგის (0–5) და განსხვავებული ნიშნის რედაქტირება
+app.patch("/api/admin/cooks/:id", requireAdmin, async (req, res) => {
+  try {
+    const b = req.body || {};
+    const fields = [], vals = []; let i = 1;
+    if (b.rating != null) {
+      let rt = Number(b.rating);
+      if (!Number.isFinite(rt)) rt = 0;
+      rt = Math.max(0, Math.min(5, Math.round(rt * 2) / 2)); // 0–5, ნახევრიანი ბიჯით
+      fields.push(`rating=$${i++}`); vals.push(rt);
+    }
+    if (b.badge !== undefined) {
+      const bg = (b.badge || "").trim().slice(0, 60);
+      fields.push(`badge=$${i++}`); vals.push(bg || null);
+    }
+    if (!fields.length) return res.status(400).json({ error: "no_fields" });
+    vals.push(req.params.id);
+    const { rowCount } = await pool.query(`update cooks set ${fields.join(",")} where id=$${i}`, vals);
+    if (!rowCount) return res.status(404).json({ error: "not_found", code: "not_found" });
+    res.json({ ok: true });
   } catch (e) { console.error(e); res.status(500).json({ error: "db_error" }); }
 });
 

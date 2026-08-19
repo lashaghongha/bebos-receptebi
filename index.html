@@ -118,6 +118,15 @@
   .cook b{font-family:var(--serif);font-size:16.5px;display:block;line-height:1.2}
   .cook small{display:block;font-size:12px;color:var(--ink-soft);margin-top:4px}
   .cook .n{display:inline-block;margin-top:9px;font-size:11.5px;color:var(--accent);font-weight:600;background:rgba(162,69,31,.08);padding:3px 10px;border-radius:20px}
+  .cook-rate{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:4px}
+  .stars{position:relative;display:inline-block;font-size:14px;line-height:1;letter-spacing:1.5px;white-space:nowrap;vertical-align:middle}
+  .stars .stars-bg{color:#e2d6c2}
+  .stars .stars-fg{color:#e8a13a;position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap}
+  .rate-num{font-size:12px;color:var(--ink-soft);font-weight:700;vertical-align:middle}
+  .badge-chip{display:inline-block;font-size:11px;font-weight:700;color:#8a4a1e;background:#f6e3cf;
+    border:1px solid #eccfae;border-radius:999px;padding:3px 10px;margin-top:8px;letter-spacing:.2px;line-height:1.3}
+  .cook-hero .info .sub .hero-rate{display:inline-flex;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:30px;padding:4px 12px}
+  .cook-hero .info .badge-chip{margin-top:12px;font-size:13px;padding:5px 14px}
   .cook.all .av{background:linear-gradient(150deg,var(--ink),#4a3a29);color:#fff;font-size:26px}
 
   .filters{display:flex;gap:10px;flex-wrap:wrap;padding:2px 0 6px}
@@ -512,6 +521,12 @@ let cookCtx={id:null,cat:"ყველა"};
 
 const cookById=id=>COOKS.find(c=>c.id===id);
 const recipesOf=id=>RECIPES.filter(r=>r.cook===id);
+const clampRating=v=>{ v=Number(v)||0; return Math.max(0,Math.min(5,v)); };
+function starsHTML(rating){
+  const r=clampRating(rating); if(!r) return '';
+  const pct=(r/5*100).toFixed(1), num=(Math.round(r*10)/10).toFixed(1);
+  return `<span class="stars" title="${num} / 5" aria-label="რეიტინგი ${num} / 5"><span class="stars-bg">★★★★★</span><span class="stars-fg" style="width:${pct}%">★★★★★</span></span><span class="rate-num">${num}</span>`;
+}
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function renderCooks(){
@@ -521,7 +536,9 @@ function renderCooks(){
     <div class="cook ${activeCook===c.id?'active':''}" onclick="openCook('${c.id}')">
       <div class="av" style="--cc:${c.cc}">${avatarInner(c)}</div>
       <b>${esc(c.name)}</b><small>${esc(c.city||'')}</small>
-      <span class="n">${recipesOf(c.id).length} რეცეპტი</span></div>`).join('');
+      ${c.rating?`<div class="cook-rate">${starsHTML(c.rating)}</div>`:''}
+      <span class="n">${recipesOf(c.id).length} რეცეპტი</span>
+      ${c.badge?`<div><span class="badge-chip">${esc(c.badge)}</span></div>`:''}</div>`).join('');
 }
 function selectCook(id){ activeCook=id; activeCat="ყველა"; renderCooks(); renderFilters(); renderGrid();
   document.querySelector('.wrap .row-title').scrollIntoView({behavior:'smooth',block:'start'}); }
@@ -627,7 +644,8 @@ function renderCookPage(){
     <div class="cook-hero" style="--cc:${c.cc}">
       <div class="big">${avatarInner(c)}</div>
       <div class="info"><h2>${esc(c.name)}</h2>
-        <div class="sub">${c.city?`<span>📍 ${esc(c.city)}</span>`:''}<span><b>${all.length}</b> რეცეპტი</span></div></div>
+        <div class="sub">${c.city?`<span>📍 ${esc(c.city)}</span>`:''}<span><b>${all.length}</b> რეცეპტი</span>${c.rating?`<span class="hero-rate">${starsHTML(c.rating)}</span>`:''}</div>
+        ${c.badge?`<span class="badge-chip">${esc(c.badge)}</span>`:''}</div>
     </div>
     <div class="cook-actions">
       <button class="btn primary" onclick="openUploadFor('${c.id}')">＋ ამ ბებიას რეცეპტი დაუმატე</button>
