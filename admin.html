@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ადმინის პანელი · ბებოს რეცეპტები</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@500;600;700&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#fdf9f1; --ink:#2c2015; --ink-soft:#7a6b57; --accent:#c15a28; --accent-2:#d98a4b;
+    --line:#e7dcc9; --card:#fffdf8; --shadow:0 10px 30px -14px rgba(70,45,20,.35);
+    --serif:'Noto Serif Georgian',Georgia,serif; --sans:'Noto Sans Georgian',system-ui,sans-serif;
+    --ok:#3f7a3f; --danger:#b3261e;
+  }
+  *{box-sizing:border-box}
+  html{scrollbar-width:none;-ms-overflow-style:none}
+  html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
+  body{margin:0;font-family:var(--sans);color:var(--ink);min-height:100vh;
+    background:radial-gradient(1100px 560px at 88% -12%,#fbf1de 0,transparent 58%),var(--paper)}
+  a{color:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 22px}
+
+  /* header */
+  header{border-bottom:1px solid var(--line);background:rgba(253,249,241,.9);backdrop-filter:blur(10px);
+    position:sticky;top:0;z-index:10}
+  .bar{display:flex;align-items:center;gap:14px;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+  .brand .mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,var(--accent),#8a3f1c);
+    display:grid;place-items:center;font-size:20px;box-shadow:var(--shadow)}
+  .brand b{font-family:var(--serif);font-size:19px;display:block;line-height:1.1}
+  .brand span{font-size:12px;color:var(--ink-soft)}
+  .spacer{flex:1}
+  .back{display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-weight:600;font-size:14px;
+    color:var(--ink-soft);border:1px solid var(--line);background:var(--card);padding:9px 15px;border-radius:40px}
+  .back:hover{border-color:var(--accent);color:var(--accent)}
+  .who{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-soft)}
+  .who b{color:var(--ink);font-weight:600}
+  .who button{border:1px solid var(--line);background:none;color:var(--ink-soft);border-radius:40px;padding:8px 13px;font-size:13px;cursor:pointer;font-family:var(--sans)}
+  .who button:hover{border-color:var(--danger);color:var(--danger)}
+
+  h1{font-family:var(--serif);font-size:clamp(26px,4vw,36px);margin:26px 0 4px}
+  .sub{color:var(--ink-soft);font-size:15px;margin:0 0 22px}
+
+  .modebar{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:7px 14px;border-radius:40px;margin-bottom:22px}
+  .modebar.cloud{background:#e8f3e6;color:var(--ok)}
+  .modebar.local{background:#fbeede;color:var(--accent)}
+  .modebar .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
+  .stat{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;padding:18px 20px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s,border-color .18s}
+  .stat:hover{transform:translateY(-3px);box-shadow:0 18px 36px -18px rgba(70,45,20,.45);border-color:var(--accent-2)}
+  .stat .ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;flex:0 0 auto}
+  .stat .ico svg{width:24px;height:24px}
+  .stat .n{font-family:var(--serif);font-size:32px;line-height:1}
+  .stat .l{color:var(--ink-soft);font-size:13px;margin-top:5px;line-height:1.25}
+  .stat[data-kind=users] .ico{background:#f7e7db;color:var(--accent)} .stat[data-kind=users] .n{color:var(--accent)}
+  .stat[data-kind=recipes] .ico{background:#e6f0e4;color:var(--ok)} .stat[data-kind=recipes] .n{color:var(--ok)}
+  .stat[data-kind=cooks] .ico{background:#efe4f2;color:#8a4fa8} .stat[data-kind=cooks] .n{color:#8a4fa8}
+
+  /* toolbar: search + tabs */
+  .searchrow{display:flex;justify-content:flex-end;margin-bottom:14px}
+  .srch{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);
+    border-radius:40px;padding:10px 16px;min-width:280px;transition:border-color .15s,box-shadow .15s}
+  .srch:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(193,90,40,.12)}
+  .srch svg{width:16px;height:16px;color:var(--ink-soft);flex:0 0 auto}
+  .srch input{border:0;background:none;outline:none;font-family:var(--sans);font-size:14px;width:100%;color:var(--ink)}
+
+  /* tabs */
+  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .tabs button{border:0;background:none;font-family:var(--sans);font-weight:600;font-size:15px;color:var(--ink-soft);
+    padding:12px 6px;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:color .15s}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+  .tabs button .cnt{display:inline-block;margin-left:7px;font-size:12px;font-weight:700;background:#f0e7d6;
+    color:var(--ink-soft);padding:1px 9px;border-radius:40px;transition:background .15s,color .15s}
+  .tabs button.on .cnt{background:var(--accent);color:#fff}
+
+  /* table */
+  .panel{display:none}
+  .panel.on{display:block}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+  th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);
+    padding:13px 16px;border-bottom:1px solid var(--line);font-weight:700;background:#faf4e8;white-space:nowrap}
+  td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  tr:hover td{background:#fdfaf2}
+  .em{font-size:20px;margin-right:8px}
+  .nm{font-weight:600}
+  .muted{color:var(--ink-soft)}
+  .pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:40px;background:#f0e7d6;color:var(--ink-soft)}
+  .pill.admin{background:#e8f3e6;color:var(--ok)}
+  .pill.seed{background:#f3ece0;color:var(--ink-soft)}
+  .avs{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:inline-grid;place-items:center;font-weight:700;font-size:14px;margin-right:9px;vertical-align:middle}
+  .del{border:1px solid var(--line);background:none;color:var(--ink-soft);border-radius:40px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:var(--sans)}
+  .del:hover{border-color:var(--danger);color:var(--danger)}
+  .empty{padding:40px 20px;text-align:center;color:var(--ink-soft)}
+
+  /* login gate */
+  .gate{max-width:400px;margin:8vh auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:34px 28px 28px;box-shadow:var(--shadow)}
+  .gate-logo{width:58px;height:58px;border-radius:17px;background:linear-gradient(150deg,var(--accent),#8a3f1c);
+    display:grid;place-items:center;font-size:28px;margin:0 auto 16px;box-shadow:0 12px 26px -10px rgba(193,90,40,.6)}
+  .gate h2{font-family:var(--serif);font-size:24px;margin:0 0 4px;text-align:center}
+  .gate p{color:var(--ink-soft);font-size:14px;margin:0 0 22px;text-align:center}
+  .gate label{display:block;font-size:13px;font-weight:600;margin:0 0 6px;color:var(--ink-soft)}
+  .gate input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font-family:var(--sans);font-size:15px;background:var(--paper);margin-bottom:16px}
+  .gate input:focus{outline:none;border-color:var(--accent)}
+  .gate button.go{width:100%;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:15px;padding:13px;border-radius:12px;cursor:pointer;font-family:var(--sans)}
+  .gate button.go:hover{background:#a94a20}
+  .gate .err{color:var(--danger);font-size:13.5px;margin-bottom:14px;display:none}
+  .gate .err.show{display:block}
+  .gate .home{display:block;text-align:center;margin-top:16px;font-size:13.5px;color:var(--ink-soft);text-decoration:none}
+
+  .hidden{display:none!important}
+  footer{text-align:center;color:var(--ink-soft);font-size:13px;padding:40px 0 30px}
+
+  @media(max-width:600px){
+    .wrap{padding:0 15px}
+    /* header კომპაქტური */
+    .bar{gap:10px;padding:11px 0}
+    .brand .mark{width:36px;height:36px;font-size:17px;border-radius:11px}
+    .brand b{font-size:16px}
+    .brand span{display:none}
+    .back{display:none}
+    .who{font-size:13px;gap:8px}
+    .who .lbl,.who .eml{display:none}
+    .who button{padding:8px 13px}
+    h1{font-size:24px;margin:20px 0 4px}
+    .sub{font-size:14px}
+
+    /* სტატისტიკა — კომპაქტური რიგები */
+    .stats{grid-template-columns:1fr;gap:10px;margin-bottom:22px}
+    .stat{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:15px}
+    .stat .n{font-size:28px}
+    .stat .l{margin-top:0;font-size:13px}
+
+    /* ცხრილები → ბარათები */
+    .tablewrap{border:0;background:none;box-shadow:none;overflow:visible}
+    table{min-width:0;display:block}
+    thead{display:none}
+    tbody{display:block}
+    tr{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;
+      box-shadow:var(--shadow);padding:4px 2px;margin-bottom:12px}
+    tr:hover td{background:none}
+    td{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+      padding:10px 15px;border-bottom:1px solid var(--line);text-align:right}
+    td:last-child{border-bottom:0}
+    td::before{content:attr(data-label);font-size:11.5px;font-weight:700;color:var(--ink-soft);
+      text-transform:uppercase;letter-spacing:.03em;text-align:left;flex:0 0 auto;white-space:nowrap}
+    td.head{font-size:15.5px}
+    td.head::before{display:none}
+    td.act{padding-top:12px}
+    td.act::before{display:none}
+    .del{width:100%;padding:11px}
+    .avs{width:26px;height:26px;font-size:13px;margin-right:7px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN GATE ── -->
+<div id="gate" class="gate hidden">
+  <div class="gate-logo">🍲</div>
+  <h2>ადმინის პანელი</h2>
+  <p id="gateSub">შედი ადმინის ანგარიშით</p>
+  <div class="err" id="gateErr"></div>
+  <label for="g_email">ელფოსტა</label>
+  <input id="g_email" type="email" autocomplete="username" placeholder="admin@example.com" />
+  <label for="g_pass">პაროლი</label>
+  <input id="g_pass" type="password" autocomplete="current-password" placeholder="••••••••" />
+  <button class="go" id="gateBtn" onclick="gateLogin()">შესვლა</button>
+  <a class="home" href="index.html">← მთავარ საიტზე დაბრუნება</a>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="app" class="hidden">
+  <header>
+    <div class="wrap bar">
+      <a class="brand" href="index.html">
+        <div class="mark">🍲</div>
+        <div><b>ადმინის პანელი</b><span>ბებოს რეცეპტები</span></div>
+      </a>
+      <div class="spacer"></div>
+      <div class="who" id="who"></div>
+      <a class="back" href="index.html">← საიტზე</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="modebar" id="modebar"><span class="dot"></span><span id="modeText">…</span></div>
+
+    <div class="stats">
+      <div class="stat" data-kind="users">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div><div class="n" id="stUsers">–</div><div class="l">დარეგისტრირებული მომხმარებელი</div></div>
+      </div>
+      <div class="stat" data-kind="recipes">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div><div class="n" id="stRecipes">–</div><div class="l">რეცეპტი სულ</div></div>
+      </div>
+      <div class="stat" data-kind="cooks">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" y1="17" x2="18" y2="17"/></svg></div>
+        <div><div class="n" id="stCooks">–</div><div class="l">ბებია (მზარეული)</div></div>
+      </div>
+    </div>
+
+    <div class="searchrow">
+      <div class="srch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="filter" oninput="onFilter(this.value)" placeholder="ძებნა სახელით, ელფოსტით, კატეგორიით…" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button id="tabUsersBtn" class="on" onclick="showTab('users')">მომხმარებლები<span class="cnt" id="cntUsers"></span></button>
+      <button id="tabRecipesBtn" onclick="showTab('recipes')">რეცეპტები<span class="cnt" id="cntRecipes"></span></button>
+    </div>
+
+    <section class="panel on" id="panelUsers">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>მომხმარებელი</th><th>ელფოსტა</th><th>რეგისტრაცია</th><th>რეცეპტები</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="panelRecipes">
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>რეცეპტი</th><th>კატეგორია</th><th>ბებია</th><th>ვინ ატვირთა</th><th>თარიღი</th><th></th></tr></thead>
+          <tbody id="recipesBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <footer>ბებოს რეცეპტები · ადმინის პანელი</footer>
+</div>
+
+<script>
+/* ─── config (index.html-იდან გაზიარებული API_BASE) ─── */
+const API_BASE = "" || (localStorage.getItem('bebo_api_base') || "");
+const USE_CLOUD = !!API_BASE;
+const K_TOKEN="bebo_token", K_USER="bebo_user_v1";
+const K_ACCTS="bebo_accounts_v1", K_RECIPES="bebo_recipes_v1", K_COOKS="bebo_cooks_v1";
+
+const $ = (id)=>document.getElementById(id);
+const esc = (s)=>String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmtDate = (v)=>{ if(!v) return '—'; const d=new Date(v); if(isNaN(d)) return '—';
+  return d.toLocaleDateString('ka-GE',{year:'numeric',month:'short',day:'numeric'}); };
+
+async function api(path, opts){
+  const headers={'Content-Type':'application/json'};
+  const token=localStorage.getItem(K_TOKEN);
+  if(token) headers['Authorization']='Bearer '+token;
+  const res=await fetch(API_BASE.replace(/\/$/,'')+path,{headers:{...headers,...(opts&&opts.headers)},...opts});
+  if(!res.ok){ let b={}; try{ b=await res.json(); }catch(e){} const err=new Error(b.error||('API '+res.status)); err.status=res.status; err.code=b.code; throw err; }
+  return res.status===204?null:res.json();
+}
+
+/* ─── state ─── */
+let USERS=[], RECIPES=[], COOKS=[];
+let filterQ='';
+function onFilter(v){ filterQ=(v||'').trim().toLowerCase(); renderUsers(); renderRecipes(); }
+
+/* ═══════════ BOOT ═══════════ */
+(async function(){
+  if(!USE_CLOUD){ bootLocal(); return; }
+  const token=localStorage.getItem(K_TOKEN);
+  if(!token){ showGate('შედი ადმინის ანგარიშით (იგივე, რაც მთავარ საიტზე)'); return; }
+  try{
+    const me=await api('/api/me');
+    if(!me.is_admin){ showGate('ეს ანგარიში ადმინი არ არის. შედი ადმინის ელფოსტით.'); return; }
+    await loadCloud(me);
+  }catch(e){
+    showGate('სესია ვადაგასულია. გთხოვ, თავიდან შედი.');
+  }
+})();
+
+/* ─── LOGIN GATE ─── */
+function showGate(msg){ $('app').classList.add('hidden'); const g=$('gate'); g.classList.remove('hidden'); if(msg) $('gateSub').textContent=msg; }
+async function gateLogin(){
+  const email=$('g_email').value.trim(), pass=$('g_pass').value;
+  const err=$('gateErr'); err.classList.remove('show');
+  if(!email||!pass){ err.textContent='შეავსე ელფოსტა და პაროლი.'; err.classList.add('show'); return; }
+  const btn=$('gateBtn'); btn.disabled=true; btn.textContent='შემოწმება…';
+  try{
+    const res=await api('/api/login',{method:'POST',body:JSON.stringify({email,password:pass})});
+    localStorage.setItem(K_TOKEN,res.token); localStorage.setItem(K_USER,JSON.stringify(res.user));
+    if(!res.user.is_admin){ err.textContent='ეს ანგარიში ადმინი არ არის.'; err.classList.add('show'); return; }
+    await loadCloud(res.user);
+  }catch(e){
+    err.textContent = e.code==='bad' ? 'ელფოსტა ან პაროლი არასწორია.' : 'შესვლა ვერ მოხერხდა. სცადე თავიდან.';
+    err.classList.add('show');
+  }finally{ btn.disabled=false; btn.textContent='შესვლა'; }
+}
+
+/* ─── CLOUD ─── */
+async function loadCloud(me){
+  $('gate').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('who').innerHTML=`<span><span class="lbl">შესული: </span><b>${esc(me.name)}</b> <span class="eml muted">· ${esc(me.email)}</span></span>
+    <button onclick="logout()">გასვლა</button>`;
+  const mb=$('modebar'); mb.className='modebar cloud'; $('modeText').textContent='საერთო ბაზა (Cloud)';
+  try{
+    const [stats,u,r]=await Promise.all([api('/api/admin/stats'),api('/api/admin/users'),api('/api/admin/recipes')]);
+    $('stUsers').textContent=stats.users; $('stRecipes').textContent=stats.recipes; $('stCooks').textContent=stats.cooks;
+    USERS=u.users||[]; RECIPES=r.recipes||[];
+    renderUsers(); renderRecipes();
+  }catch(e){ $('usersBody').innerHTML=errRow(4); $('recipesBody').innerHTML=errRow(6); }
+}
+
+/* ─── LOCAL (ამ ბრაუზერის მონაცემები) ─── */
+function bootLocal(){
+  $('gate').classList.add('hidden'); $('app').classList.remove('hidden');
+  const cur=(()=>{ try{ return JSON.parse(localStorage.getItem(K_USER))||null; }catch(e){ return null; } })();
+  $('who').innerHTML = cur
+    ? `<span><span class="lbl">შესული: </span><b>${esc(cur.name||'')}</b></span><button onclick="logout()">გასვლა</button>`
+    : `<span class="muted">ლოკალური რეჟიმი</span>`;
+  const mb=$('modebar'); mb.className='modebar local'; $('modeText').textContent='ლოკალური რეჟიმი — მხოლოდ ამ ბრაუზერის მონაცემები';
+
+  const accts=(()=>{ try{ return JSON.parse(localStorage.getItem(K_ACCTS))||{}; }catch(e){ return {}; } })();
+  try{ RECIPES=JSON.parse(localStorage.getItem(K_RECIPES))||[]; }catch(e){ RECIPES=[]; }
+  try{ COOKS=JSON.parse(localStorage.getItem(K_COOKS))||[]; }catch(e){ COOKS=[]; }
+  const cookName=(id)=>{ const c=COOKS.find(x=>x.id===id); return c?c.name:id; };
+
+  USERS=Object.values(accts).map(a=>({
+    name:a.name, email:a.email, created_at:null,
+    recipe_count:RECIPES.filter(r=>r._by && r._by===a.email).length, is_admin:false
+  }));
+  RECIPES=RECIPES.map(r=>({
+    id:r.id, name:r.name, cat:r.cat, emoji:r.emoji, cook:r.cook, cook_name:cookName(r.cook),
+    created_at:r._at||null, created_by:r._by?1:null, author_name:r._byName||null, author_email:r._by||null
+  }));
+
+  $('stUsers').textContent=USERS.length; $('stRecipes').textContent=RECIPES.length; $('stCooks').textContent=COOKS.length;
+  renderUsers(); renderRecipes();
+}
+
+/* ─── render ─── */
+function errRow(cols){ return `<tr><td colspan="${cols}" class="empty">მონაცემების ჩატვირთვა ვერ მოხერხდა.</td></tr>`; }
+
+function renderUsers(){
+  const b=$('usersBody'), cnt=$('cntUsers');
+  if(cnt) cnt.textContent=USERS.length;
+  if(!USERS.length){ b.innerHTML=`<tr><td colspan="4" class="empty">ჯერ არავინ დარეგისტრირებულა.</td></tr>`; return; }
+  const list=filterQ
+    ? USERS.filter(u=>((u.name||'')+' '+(u.email||'')).toLowerCase().includes(filterQ))
+    : USERS;
+  if(!list.length){ b.innerHTML=`<tr><td colspan="4" class="empty">ვერაფერი მოიძებნა „${esc(filterQ)}“-ზე.</td></tr>`; return; }
+  b.innerHTML=list.map(u=>{
+    const initial=(u.name||'?').trim().charAt(0).toUpperCase();
+    const badge=u.is_admin?'<span class="pill admin">ადმინი</span>':'';
+    return `<tr>
+      <td class="head" data-label="მომხმარებელი"><span class="avs">${esc(initial)}</span><span class="nm">${esc(u.name||'—')}</span> ${badge}</td>
+      <td class="muted" data-label="ელფოსტა">${esc(u.email||'—')}</td>
+      <td class="muted" data-label="რეგისტრაცია">${fmtDate(u.created_at)}</td>
+      <td data-label="რეცეპტები"><span class="pill">${u.recipe_count||0}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRecipes(){
+  const b=$('recipesBody'), cnt=$('cntRecipes');
+  if(cnt) cnt.textContent=RECIPES.length;
+  if(!RECIPES.length){ b.innerHTML=`<tr><td colspan="6" class="empty">ჯერ არცერთი რეცეპტი.</td></tr>`; return; }
+  const list=filterQ
+    ? RECIPES.filter(r=>((r.name||'')+' '+(r.cat||'')+' '+(r.cook_name||r.cook||'')+' '+(r.author_name||'')+' '+(r.author_email||'')).toLowerCase().includes(filterQ))
+    : RECIPES;
+  if(!list.length){ b.innerHTML=`<tr><td colspan="6" class="empty">ვერაფერი მოიძებნა „${esc(filterQ)}“-ზე.</td></tr>`; return; }
+  b.innerHTML=list.map(r=>{
+    const author = r.created_by==null
+      ? '<span class="pill seed">საწყისი (seed)</span>'
+      : `<span class="nm">${esc(r.author_name||'—')}</span>${r.author_email?`<br><small class="muted">${esc(r.author_email)}</small>`:''}`;
+    return `<tr>
+      <td class="head" data-label="რეცეპტი"><span class="em">${esc(r.emoji||'🍲')}</span><span class="nm">${esc(r.name||'—')}</span></td>
+      <td class="muted" data-label="კატეგორია">${esc(r.cat||'—')}</td>
+      <td class="muted" data-label="ბებია">${esc(r.cook_name||r.cook||'—')}</td>
+      <td data-label="ვინ ატვირთა">${author}</td>
+      <td class="muted" data-label="თარიღი">${fmtDate(r.created_at)}</td>
+      <td class="act"><button class="del" onclick="delRecipe('${esc(r.id)}')">წაშლა</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── actions ─── */
+async function delRecipe(id){
+  if(!confirm('ნამდვილად წავშალო ეს რეცეპტი?')) return;
+  if(USE_CLOUD){
+    try{ await api('/api/recipes/'+encodeURIComponent(id),{method:'DELETE'}); }
+    catch(e){ alert('წაშლა ვერ მოხერხდა.'); return; }
+  }else{
+    let list=[]; try{ list=JSON.parse(localStorage.getItem(K_RECIPES))||[]; }catch(e){}
+    list=list.filter(r=>r.id!==id);
+    try{ localStorage.setItem(K_RECIPES,JSON.stringify(list)); }catch(e){}
+  }
+  RECIPES=RECIPES.filter(r=>r.id!==id);
+  const st=$('stRecipes'); st.textContent=Math.max(0,(parseInt(st.textContent,10)||1)-1);
+  renderRecipes();
+}
+
+function showTab(t){
+  const u=t==='users';
+  $('tabUsersBtn').classList.toggle('on',u); $('tabRecipesBtn').classList.toggle('on',!u);
+  $('panelUsers').classList.toggle('on',u); $('panelRecipes').classList.toggle('on',!u);
+}
+
+function logout(){
+  localStorage.removeItem(K_TOKEN); localStorage.removeItem(K_USER);
+  location.href='index.html';
+}
+</script>
+</body>
+</html>
